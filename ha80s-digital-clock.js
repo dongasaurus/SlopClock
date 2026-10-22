@@ -182,13 +182,18 @@ class Ha80sDigitalClock extends HTMLElement {
         body += `<g class="colon"><circle class="seg" cx="${cx}" cy="${DH * 0.3}" r="${r}"/><circle class="seg" cx="${cx}" cy="${DH * 0.7}" r="${r}"/></g>`;
         x += COLON_W;
       }
-      body += `<g class="digit" data-i="${i}" transform="translate(${x},0)">`;
-      for (const [name, pts] of Object.entries(SEGMENTS)) {
-        body += `<polygon class="seg" data-s="${name}" points="${pts}"/>`;
+      // In 12 hour mode the leading digit is only ever blank or 1, so it
+      // gets a narrow slot with just the two right hand segments
+      const half = i === 0 && Number(c.hour_format) === 12;
+      const segNames = half ? ["b", "c"] : Object.keys(SEGMENTS);
+      const ox = half ? x - (DW - ST) : x;
+      body += `<g class="digit" data-i="${i}" transform="translate(${ox},0)">`;
+      for (const name of segNames) {
+        body += `<polygon class="seg" data-s="${name}" points="${SEGMENTS[name]}"/>`;
       }
       body += `</g>`;
       digitIds.push(i);
-      x += DW + DIGIT_GAP;
+      x += (half ? ST : DW) + DIGIT_GAP;
     }
     if (Number(c.hour_format) === 12) {
       // AM / PM indicator stacked to the right of the digits
