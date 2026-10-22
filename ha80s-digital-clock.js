@@ -207,7 +207,7 @@ class Ha80sDigitalClock extends HTMLElement {
         svg { width: 100%; height: auto; max-height: 100%; min-height: 0; display: block; }
         .seg { fill: ${c.color}; opacity: ${c.ghost_opacity}; transition: opacity 0.08s linear; }
         .seg.on, .colon.on .seg { opacity: 1; }
-        ${c.glow ? `.seg.on, .colon.on .seg { filter: drop-shadow(0 0 2px ${c.color}) drop-shadow(0 0 6px ${c.color}); }` : ""}
+        ${c.glow ? `.seg.on, .colon.on .seg { filter: drop-shadow(0 0 1px ${c.color}) drop-shadow(0 0 4px color-mix(in srgb, ${c.color} 45%, transparent)); }` : ""}
       </style>
       <ha-card>
         ${c.title ? `<div class="title">${String(c.title).replace(/[&<>"]/g, "")}</div>` : ""}
