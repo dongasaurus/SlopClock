@@ -1,4 +1,4 @@
-# 80s Digital Clock card for Home Assistant
+# SlopClock card for Home Assistant
 
 A Lovelace card that shows the current time in 24 hour format, drawn as a red seven segment LED display. Unlit segments glow faintly, lit ones bloom, and the colon blinks every second.
 
@@ -8,8 +8,8 @@ A Lovelace card that shows the current time in 24 hour format, drawn as a red se
 
 ### HACS (custom repository)
 1. HACS > three dots > **Custom repositories**
-2. Add `https://github.com/dongasaurus/ha80sDigitalClock`, type **Dashboard**
-3. Install **80s Digital Clock**, then reload your browser
+2. Add `https://github.com/dongasaurus/SlopClock`, type **Dashboard**
+3. Install **SlopClock**, then reload your browser
 
 ### Manual
 1. Copy `ha80s-digital-clock.js` to `<config>/www/`

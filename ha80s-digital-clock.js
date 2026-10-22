@@ -234,7 +234,7 @@ customElements.define("ha80s-digital-clock", Ha80sDigitalClock);
 window.customCards = window.customCards || [];
 window.customCards.push({
   type: "ha80s-digital-clock",
-  name: "80s Digital Clock",
+  name: "SlopClock",
   description: "24 hour clock styled as a red seven segment LED display.",
   preview: true,
 });
