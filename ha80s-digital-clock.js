@@ -13,6 +13,7 @@ const ST = 10; // segment thickness
 const SG = 1.6; // gap between segments
 const DIGIT_GAP = 14; // space between digits
 const COLON_W = 22; // width reserved for a colon
+const AMPM_W = 34; // width reserved for the AM/PM indicator
 const PAD = 8; // outer padding
 const SKEW = -6; // italic lean, like real LED displays
 
@@ -77,6 +78,7 @@ class Ha80sDigitalClock extends HTMLElement {
   setConfig(config) {
     this._config = {
       show_seconds: false,
+      hour_format: 24,
       blink_colon: true,
       color: "#ff2a1a",
       background: "#0b0202",
@@ -137,7 +139,14 @@ class Ha80sDigitalClock extends HTMLElement {
       parts = getFormatter(undefined).formatToParts(now);
     }
     const get = (type) => parts.find((p) => p.type === type)?.value ?? "00";
-    const text = get("hour") + get("minute") + (this._config.show_seconds ? get("second") : "");
+    const twelve = Number(this._config.hour_format) === 12;
+    let hour = get("hour");
+    const pm = Number(hour) >= 12;
+    if (twelve) {
+      // 12 hour clocks blank the leading zero, e.g. " 7:05"
+      hour = String(Number(hour) % 12 || 12).padStart(2, " ");
+    }
+    const text = hour + get("minute") + (this._config.show_seconds ? get("second") : "");
 
     if (text !== this._lastText) {
       this._lastText = text;
@@ -147,6 +156,10 @@ class Ha80sDigitalClock extends HTMLElement {
           el.classList.toggle("on", lit.includes(name));
         }
       });
+      if (this._amEl) {
+        this._amEl.classList.toggle("on", twelve && !pm);
+        this._pmEl.classList.toggle("on", twelve && pm);
+      }
     }
 
     const colonOn = !this._config.blink_colon || now.getMilliseconds() < 500;
@@ -169,13 +182,25 @@ class Ha80sDigitalClock extends HTMLElement {
         body += `<g class="colon"><circle class="seg" cx="${cx}" cy="${DH * 0.3}" r="${r}"/><circle class="seg" cx="${cx}" cy="${DH * 0.7}" r="${r}"/></g>`;
         x += COLON_W;
       }
-      body += `<g class="digit" data-i="${i}" transform="translate(${x},0)">`;
-      for (const [name, pts] of Object.entries(SEGMENTS)) {
-        body += `<polygon class="seg" data-s="${name}" points="${pts}"/>`;
+      // In 12 hour mode the leading digit is only ever blank or 1, so it
+      // gets a narrow slot with just the two right hand segments
+      const half = i === 0 && Number(c.hour_format) === 12;
+      const segNames = half ? ["b", "c"] : Object.keys(SEGMENTS);
+      const ox = half ? x - (DW - ST) : x;
+      body += `<g class="digit" data-i="${i}" transform="translate(${ox},0)">`;
+      for (const name of segNames) {
+        body += `<polygon class="seg" data-s="${name}" points="${SEGMENTS[name]}"/>`;
       }
       body += `</g>`;
       digitIds.push(i);
-      x += DW + DIGIT_GAP;
+      x += (half ? ST : DW) + DIGIT_GAP;
+    }
+    if (Number(c.hour_format) === 12) {
+      // AM / PM indicator stacked to the right of the digits
+      const fs = DH * 0.24;
+      body += `<text class="seg ampm" data-p="am" x="${x - DIGIT_GAP / 2}" y="${DH * 0.3 + fs * 0.35}" font-size="${fs}">AM</text>`;
+      body += `<text class="seg ampm" data-p="pm" x="${x - DIGIT_GAP / 2}" y="${DH * 0.7 + fs * 0.35}" font-size="${fs}">PM</text>`;
+      x += AMPM_W;
     }
     const lean = Math.tan((-SKEW * Math.PI) / 180) * DH;
     const width = x - DIGIT_GAP + PAD + lean;
@@ -207,6 +232,7 @@ class Ha80sDigitalClock extends HTMLElement {
         svg { width: 100%; height: auto; max-height: 100%; min-height: 0; display: block; }
         .seg { fill: ${c.color}; opacity: ${c.ghost_opacity}; transition: opacity 0.08s linear; }
         .seg.on, .colon.on .seg { opacity: 1; }
+        .ampm { font-family: "Arial Narrow", Arial, sans-serif; font-weight: bold; }
         ${c.glow ? `.seg.on, .colon.on .seg { filter: drop-shadow(0 0 1px ${c.color}) drop-shadow(0 0 4px color-mix(in srgb, ${c.color} 45%, transparent)); }` : ""}
       </style>
       <ha-card>
@@ -224,6 +250,8 @@ class Ha80sDigitalClock extends HTMLElement {
       return segs;
     });
     this._colonEls = [...this.shadowRoot.querySelectorAll(".colon")];
+    this._amEl = this.shadowRoot.querySelector('.ampm[data-p="am"]');
+    this._pmEl = this.shadowRoot.querySelector('.ampm[data-p="pm"]');
     this._lastText = null;
     this._tick();
   }

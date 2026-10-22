@@ -1,6 +1,6 @@
 # SlopClock card for Home Assistant
 
-A Lovelace card that shows the current time in 24 hour format, drawn as a red seven segment LED display. Unlit segments glow faintly, lit ones bloom, and the colon blinks every second.
+A Lovelace card that shows the current time in 24 hour (or 12 hour) format, drawn as a red seven segment LED display. Unlit segments glow faintly, lit ones bloom, and the colon blinks every second.
 
 ![preview](preview.png)
 
@@ -31,6 +31,7 @@ type: custom:ha80s-digital-clock
 | Option          | Default    | Description |
 |-----------------|------------|-------------|
 | `show_seconds`  | `false`    | Show `HH:MM:SS` instead of `HH:MM` |
+| `hour_format`   | `24`       | `24` for `13:05`, or `12` for ` 1:05` with an AM/PM indicator |
 | `blink_colon`   | `true`     | Blink the colon once per second |
 | `color`         | `#ff2a1a`  | LED colour (any CSS colour) |
 | `background`    | `#0b0202`  | Card background |
