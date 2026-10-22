@@ -4,7 +4,7 @@
  * drawn as a retro red seven segment LED display.
  */
 
-const CARD_VERSION = "1.0.0";
+const CARD_VERSION = "1.1.0";
 
 // Digit geometry (SVG units)
 const DW = 50; // digit width
